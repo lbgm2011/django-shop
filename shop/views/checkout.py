@@ -8,7 +8,7 @@ from django.http import HttpResponseRedirect
 from django.views.generic import RedirectView
 
 from shop.forms import BillingShippingForm
-from shop.models import ShippingAddressModel, BillingAddressModel
+from shop.models import ShippingAddressModel, BillingAddressModel, OrderExtraInfo
 from shop.models import Order
 from shop.util.address import (
     assign_address_to_request,
