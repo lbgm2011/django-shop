@@ -330,11 +330,22 @@ class BaseOrder(models.Model):
 
     PAYMENT = 30 # DEPRECATED!
 
+    EXPRESO = 71
+    SOSA = 72
+    RUTA = 73
+    REINGRESO = 74
+    ENTREGADO = 75
+
     STATUS_CODES = (
+        (EXPRESO, _('Cargo Expreso')),
+        (SOSA, _('Aerolinea SOSA')),
+        (RUTA, _('En Ruta')),
+        (REINGRESO, _('Re-ingreso')),
+        (ENTREGADO, _('Entregado')),
         (PROCESSING, _('Processing')),
         (CONFIRMING, _('Confirming')),
         (CONFIRMED, _('Confirmed')),
-        (COMPLETED, _('Completed')),
+        (COMPLETED, _('SYCOM')),
         (SHIPPED, _('Shipped')),
         (CANCELLED, _('Cancelled')),
     )
