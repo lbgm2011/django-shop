@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from django.forms import models as model_forms
 from django.http import HttpResponseRedirect
 from django.views.generic import RedirectView
+from shop.models import OrderGiftInfo
 
 from shop.forms import BillingShippingForm
 from shop.models import ShippingAddressModel, BillingAddressModel, OrderExtraInfo
@@ -170,18 +171,40 @@ class CheckoutSelectionView(LoginMixin, ShopTemplateView):
             setattr(self, '_extra_info_form', form)
         return form
 
+    def get_gift_info_form(self):
+        """
+        Initializes and handles the form for order gift info.
+        """
+        # Try to get the cached version first.
+        # Create a dynamic Form class for the model
+        form_class = model_forms.modelform_factory(OrderGiftInfo, exclude=['order'])
+        if self.request.method == 'POST':
+            form = form_class(self.request.POST)
+        else:
+            form = form_class()
+        setattr(self, '_gift_info_form', form)
+        return form
+
     def save_extra_info_to_order(self, order, form):
         if form.cleaned_data.get('text'):
             extra_info = form.save(commit=False)
             extra_info.order = order
             extra_info.save()
 
+    def save_gift_info_to_order(self, order, form):
+        if form.cleaned_data.get('text2'):
+            gift_info = form.save(commit=False)
+            gift_info.order = order
+            gift_info.save()
+
+
     def post(self, *args, **kwargs):
         """ Called when view is POSTed """
         shipping_form = self.get_shipping_address_form()
         billing_form = self.get_billing_address_form()
         extra_info_form = self.get_extra_info_form()
-        if shipping_form.is_valid() and billing_form.is_valid() and extra_info_form.is_valid():
+        gift_info_form = self.get_gift_info_form()
+        if shipping_form.is_valid() and billing_form.is_valid() and extra_info_form.is_valid() and gift_info_form.is_valid():
 
             # Add the address to the order
             shipping_address = shipping_form.save()
@@ -210,6 +233,7 @@ class CheckoutSelectionView(LoginMixin, ShopTemplateView):
 
                 # add extra info to order
                 self.save_extra_info_to_order(order, extra_info_form)
+                self.save_gift_info_to_order(order, gift_info_form)
 
                 return HttpResponseRedirect(reverse('checkout_shipping'))
 
@@ -225,11 +249,13 @@ class CheckoutSelectionView(LoginMixin, ShopTemplateView):
         billing_address_form = self.get_billing_address_form()
         billingshipping_form = self.get_billing_and_shipping_selection_form()
         extra_info_form = self.get_extra_info_form()
+        gift_info_form = self.get_gift_info_form()
         ctx.update({
             'shipping_address': shipping_address_form,
             'billing_address': billing_address_form,
             'billing_shipping_form': billingshipping_form,
             'extra_info_form': extra_info_form,
+            'gift_info_form': gift_info_form,
         })
         return ctx
 

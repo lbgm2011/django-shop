@@ -51,6 +51,19 @@ class OrderExtraInfo(models.Model):
         verbose_name = _('Order extra info')
         verbose_name_plural = _('Order extra info')
 
+class OrderGiftInfo(models.Model):
+    """
+    Dedicatoria
+    """
+    order = models.ForeignKey(Order, related_name="gift_info",
+            verbose_name=_('Order'))
+    text2 = models.TextField(verbose_name='', blank=True)
+
+    class Meta(object):
+        app_label = 'shop'
+        verbose_name = _('Dedicatoria')
+        verbose_name_plural = _('Dedicatoria')
+
 
 class ExtraOrderPriceField(models.Model):
     """
