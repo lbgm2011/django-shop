@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from distutils.version import LooseVersion
+import datetime
 from django.conf import settings
 from django.db import models
 from django.db.models.signals import pre_delete
@@ -64,6 +65,33 @@ class OrderGiftInfo(models.Model):
         verbose_name = _('Dedicatoria')
         verbose_name_plural = _('Dedicatoria')
 
+class OrderStatus(models.Model):
+    COMPLETED = 40 # Payment backend successfully completed
+    EXPRESO = 71
+    SOSA = 72
+    RUTA = 73
+    REINGRESO = 74
+    ENTREGADO = 75
+
+    STATUS_CODES = (
+        (COMPLETED, _('SYCOM')),
+        (EXPRESO, _('Cargo Expreso')),
+        (SOSA, _('Aerolinea SOSA')),
+        (RUTA, _('En Ruta')),
+        (REINGRESO, _('Re-ingreso')),
+        (ENTREGADO, _('Entregado')),
+    )
+
+    order = models.ForeignKey(Order, related_name="status_info",
+            verbose_name=_('Order'))
+    status = models.IntegerField(choices=STATUS_CODES, verbose_name=_('Status'))
+    created = models.DateTimeField(verbose_name=_('Created'), default=datetime.datetime.now())
+    comentario = models.CharField(max_length=500, blank=True, null=True)
+
+    class Meta(object):
+        app_label = 'shop'
+        verbose_name = _('Order Status info')
+        verbose_name_plural = _('Order Status info')
 
 class ExtraOrderPriceField(models.Model):
     """

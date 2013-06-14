@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.forms import models as model_forms
 from django.http import HttpResponseRedirect
 from django.views.generic import RedirectView
-from shop.models import OrderGiftInfo
+from shop.models import OrderGiftInfo, OrderStatus
 
 from shop.forms import BillingShippingForm
 from shop.models import ShippingAddressModel, BillingAddressModel, OrderExtraInfo
@@ -197,6 +197,9 @@ class CheckoutSelectionView(LoginMixin, ShopTemplateView):
             gift_info.order = order
             gift_info.save()
 
+    def save_first_status_to_order(self, order):
+        status_info = OrderStatus(order=order, status=40, comentarios="SYCOM")
+        status_info.save()
 
     def post(self, *args, **kwargs):
         """ Called when view is POSTed """
@@ -213,6 +216,8 @@ class CheckoutSelectionView(LoginMixin, ShopTemplateView):
 
             self.save_addresses_to_order(order, shipping_address,
                 billing_address)
+
+            self.save_first_status_to_order(order)
 
             # The following marks addresses as being default addresses for
             # shipping and billing. For more options (amazon style), we should

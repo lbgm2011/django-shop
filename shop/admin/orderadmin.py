@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from shop.admin.mixins import LocalizeDecimalFieldsMixin
 from shop.models.ordermodel import (Order, OrderItem,
-                                    OrderExtraInfo, OrderGiftInfo, ExtraOrderPriceField, OrderPayment)
+                                    OrderExtraInfo, OrderGiftInfo, ExtraOrderPriceField, OrderPayment, OrderStatus)
 
 
 class OrderExtraInfoInline(admin.TabularInline):
@@ -16,6 +16,9 @@ class OrderGiftInfoInline(admin.TabularInline):
     model = OrderGiftInfo
     extra = 0
 
+class OrderStatusInfoInline(admin.TabularInline):
+    model = OrderStatus
+    extra = 0
 
 class OrderPaymentInline(LocalizeDecimalFieldsMixin, admin.TabularInline):
     model = OrderPayment
@@ -41,7 +44,7 @@ class OrderAdmin(LocalizeDecimalFieldsMixin, ModelAdmin):
     search_fields = ('id', 'shipping_address_text', 'user__username')
     date_hierarchy = 'created'
     inlines = (OrderItemInline, OrderExtraInfoInline, OrderGiftInfoInline,
-               ExtraOrderPriceFieldInline, OrderPaymentInline)
+               ExtraOrderPriceFieldInline, OrderPaymentInline, OrderStatusInfoInline)
     readonly_fields = ('created', 'modified',)
     raw_id_fields = ('user',)
     fieldsets = (
