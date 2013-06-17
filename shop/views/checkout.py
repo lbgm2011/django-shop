@@ -2,9 +2,12 @@
 """
 This models the checkout process using views.
 """
+from django.contrib.sites.models import Site
+from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.forms import models as model_forms
 from django.http import HttpResponseRedirect
+from django.template.loader import render_to_string
 from django.views.generic import RedirectView
 from shop.models import OrderGiftInfo, OrderStatus
 
@@ -20,6 +23,7 @@ from shop.util.cart import get_or_create_cart
 from shop.util.order import add_order_to_request, get_order_from_request
 from shop.views import ShopTemplateView, ShopView
 from shop.util.login_mixin import LoginMixin
+from sycom import settings
 
 
 class CheckoutSelectionView(LoginMixin, ShopTemplateView):
@@ -198,7 +202,7 @@ class CheckoutSelectionView(LoginMixin, ShopTemplateView):
             gift_info.save()
 
     def save_first_status_to_order(self, order):
-        status_info = OrderStatus(order=order, status=40, comentarios="SYCOM")
+        status_info = OrderStatus(order=order, status=40, comentario="SYCOM")
         status_info.save()
 
     def post(self, *args, **kwargs):
@@ -272,6 +276,19 @@ class OrderConfirmView(RedirectView):
         order = get_order_from_request(self.request)
         order.status = Order.CONFIRMED
         order.save()
+
+        current_site = Site.objects.get_current()
+        site = 'http://%s' % current_site.domain,
+        cuerpo = render_to_string('pedidos/mail.html', {'data': order, 'site': site[0]})
+        message = EmailMessage(
+            subject=settings.PEDIDOS_SUBJECT,
+            body=cuerpo,
+            to=[settings.PEDIDOS_MAIL],
+            headers=settings.EMAIL_HEADERS
+        )
+        message.content_subtype = 'html'
+        message.send()
+
 
     def get(self, request, *args, **kwargs):
         self.confirm_order()
