@@ -280,6 +280,7 @@ class OrderConfirmView(RedirectView):
         current_site = Site.objects.get_current()
         site = 'http://%s' % current_site.domain,
         cuerpo = render_to_string('pedidos/mail.html', {'data': order, 'site': site[0]})
+        cuerpo_cliente = render_to_string('pedidos/client_mail.html', {'data': order, 'site': site[0]})
         message = EmailMessage(
             subject=settings.PEDIDOS_SUBJECT,
             body=cuerpo,
@@ -288,6 +289,14 @@ class OrderConfirmView(RedirectView):
         )
         message.content_subtype = 'html'
         message.send()
+        messagec = EmailMessage(
+            subject=settings.PEDIDOSCLIENTE_SUBJECT,
+            body=cuerpo_cliente,
+            to=[order.user.email],
+            headers=settings.EMAIL_HEADERS
+        )
+        messagec.content_subtype = 'html'
+        messagec.send()
 
 
     def get(self, request, *args, **kwargs):
