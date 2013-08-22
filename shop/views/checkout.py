@@ -277,28 +277,6 @@ class OrderConfirmView(RedirectView):
         order.status = Order.CONFIRMED
         order.save()
 
-        current_site = Site.objects.get_current()
-        site = 'http://%s' % current_site.domain,
-        cuerpo = render_to_string('pedidos/mail.html', {'data': order, 'site': site[0]})
-        cuerpo_cliente = render_to_string('pedidos/client_mail.html', {'data': order, 'site': site[0]})
-        message = EmailMessage(
-            subject=settings.PEDIDOS_SUBJECT,
-            body=cuerpo,
-            to=[settings.PEDIDOS_MAIL],
-            headers=settings.EMAIL_HEADERS
-        )
-        message.content_subtype = 'html'
-        message.send()
-        messagec = EmailMessage(
-            subject=settings.PEDIDOSCLIENTE_SUBJECT,
-            body=cuerpo_cliente,
-            to=[order.user.email],
-            headers=settings.EMAIL_HEADERS
-        )
-        messagec.content_subtype = 'html'
-        messagec.send()
-
-
     def get(self, request, *args, **kwargs):
         self.confirm_order()
         return super(OrderConfirmView, self).get(request, *args, **kwargs)
@@ -317,6 +295,26 @@ class ThankYouView(LoginMixin, ShopTemplateView):
         order = get_order_from_request(self.request)
         if order and order.status == Order.COMPLETED:
             ctx.update({'order': order, })
+            current_site = Site.objects.get_current()
+            site = 'http://%s' % current_site.domain,
+            cuerpo = render_to_string('pedidos/mail.html', {'data': order, 'site': site[0]})
+            cuerpo_cliente = render_to_string('pedidos/client_mail.html', {'data': order, 'site': site[0]})
+            message = EmailMessage(
+                subject=settings.PEDIDOS_SUBJECT,
+                body=cuerpo,
+                to=[settings.PEDIDOS_MAIL],
+                headers=settings.EMAIL_HEADERS
+            )
+            message.content_subtype = 'html'
+            message.send()
+            messagec = EmailMessage(
+                subject=settings.PEDIDOSCLIENTE_SUBJECT,
+                body=cuerpo_cliente,
+                to=[order.user.email],
+                headers=settings.EMAIL_HEADERS
+            )
+            messagec.content_subtype = 'html'
+            messagec.send()
 
         return ctx
 
