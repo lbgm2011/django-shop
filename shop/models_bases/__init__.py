@@ -366,6 +366,7 @@ class BaseOrder(models.Model):
     modified = models.DateTimeField(auto_now=True,
             verbose_name=_('Updated'))
     cart_pk = models.PositiveIntegerField(_('Cart primary key'), blank=True, null=True)
+    cupon_descuento = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta(object):
         abstract = True
